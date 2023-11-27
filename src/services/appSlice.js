@@ -1,6 +1,7 @@
 import { createSlice, configureStore } from "@reduxjs/toolkit";
 
 const initialState = {
+    id: "",
     username: "",
     email: "",
     photo: "",
@@ -11,6 +12,9 @@ const appSlice = createSlice({
     name: "app",
     initialState,
     reducers: {
+        setID: (state, action) => {
+            state.id = action.payload;
+        },
         setUserName: (state, action) => {
             state.username = action.payload;
         },
@@ -26,15 +30,24 @@ const appSlice = createSlice({
             if (!projectExists) {
                 state.projects.push(action.payload);
             }
-        }
+        },
+        clearStore: (state) => {
+            state.id = "";
+            state.username = "";
+            state.email = "";
+            state.photo = "";
+            state.projects = [];
+        },
     }
 });
 
 export const {
+    setID,
     setUserName,
     setEmail,
     setPhoto,
-    addProjects
+    addProjects,
+    clearStore
 } = appSlice.actions;
 
 export const store = configureStore({

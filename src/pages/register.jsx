@@ -1,22 +1,22 @@
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../firebase";
 import { useNavigate } from "react-router-dom";
-import { store } from "../services/appSlice";
+import { addProjects, setID, store } from "../services/appSlice";
 import { useDispatch } from "react-redux";
-import { setUserName,setEmail,setPhoto } from "../services/appSlice";
+import { setUserName, setEmail, setPhoto } from "../services/appSlice";
+import { doc, setDoc, getDoc } from "firebase/firestore";
+import { db } from "../firebase";
 
 export default function Register() {
 
     /* {
-                appId: "",
+                appName: "",
                 appDescription: "",
                 techStack: [],
-                appImage: "",
                 appDetails: {
                     startDate: "",
                     endDate: "",
                     finished: false,
-                    appLink: "",
                     deployed: false,
                 },
                 upcomingFeatures: [],
@@ -28,18 +28,33 @@ export default function Register() {
     const dispatch = useDispatch();
 
     const authenticate = () => {
-        try{
-            if(username !== ""){
+        try {
+            if (username !== "") {
                 navigate("/");
                 return;
             }
-            else{
-                signInWithPopup(auth, provider).then((result) => {
+            else {
+                signInWithPopup(auth, provider).then(async (result) => {
                     const user = result.user;
-                    console.log(user);
+                    console.log(user.uid);
+                    const docRef = doc(db, "users", user.uid);
+                    const docSnap =await getDoc(docRef);
+                    if(docSnap.exists()){
+                    //console.log(docSnap.data());
+                    dispatch(setID(user.uid));
                     dispatch(setUserName(user.displayName));
                     dispatch(setEmail(user.email));
                     dispatch(setPhoto(user.photoURL));
+                    dispatch(addProjects(docSnap.data().projects));
+                    }
+                    else{
+                        await setDoc(doc(db, "users", user.uid), {
+                            email: user.email,
+                            photo: user.photoURL,
+                            projects: [],
+                            username: user.displayName,
+                        });
+                    }
                     navigate("/");
                 }).catch((error) => {
                     console.log(error);
