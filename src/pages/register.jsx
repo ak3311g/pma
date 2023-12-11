@@ -1,9 +1,8 @@
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../firebase";
 import { useNavigate } from "react-router-dom";
-import { addProjects, setID, store } from "../services/appSlice";
+import { addProjects} from "../services/appSlice";
 import { useDispatch } from "react-redux";
-import { setUserName, setEmail, setPhoto } from "../services/appSlice";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
@@ -24,48 +23,41 @@ export default function Register() {
             } */
 
     const navigate = useNavigate();
-    const username = store.getState().username;
     const dispatch = useDispatch();
 
     const authenticate = () => {
-        try {
-            if (username !== "") {
-                navigate("/");
-                return;
-            }
-            else {
-                signInWithPopup(auth, provider).then(async (result) => {
-                    const user = result.user;
-                    console.log(user.uid);
-                    const docRef = doc(db, "users", user.uid);
-                    const docSnap =await getDoc(docRef);
-                    if(docSnap.exists()){
-                    //console.log(docSnap.data());
-                    dispatch(setID(user.uid));
-                    dispatch(setUserName(user.displayName));
-                    dispatch(setEmail(user.email));
-                    dispatch(setPhoto(user.photoURL));
+        signInWithPopup(auth, provider)
+            .then(async (result) => {
+                const user = result.user;
+                const uid = user.uid;
+                //console.log(user);
+                localStorage.setItem("username", user.displayName);
+                localStorage.setItem("email", user.email);
+                localStorage.setItem("photo", user.photoURL);
+                localStorage.setItem("uid", uid);
+                const docRef =doc(db, "users", uid);
+                const docSnap =await getDoc(docRef);
+                if (docSnap.exists()) {
                     dispatch(addProjects(docSnap.data().projects));
-                    }
-                    else{
-                        await setDoc(doc(db, "users", user.uid), {
-                            email: user.email,
-                            photo: user.photoURL,
-                            projects: [],
-                            username: user.displayName,
-                        });
-                    }
                     navigate("/");
-                }).catch((error) => {
-                    console.log(error);
-                });
-            }
-        } catch (error) {
-            console.error(error);
-        }
+                }
+                else{
+                    setDoc(doc(db, "users", uid), {
+                        name: user.displayName,
+                        email: user.email,
+                        photo: user.photoURL,
+                        projects: [],
+                    });
+                }
+                navigate("/");
+            })
+            .catch((error) => {
+                console.log(error);
+            });
     }
 
-    return (
+
+        return (
         <div className="h-screen">
             <div className="h-full w-full flex flex-col justify-center items-center backdrop-filter">
                 <div className="bg-white w-[300px] h-[200px] rounded-xl shadow-lg shadow-white flex flex-col justify-center items-center">
