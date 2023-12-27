@@ -3,7 +3,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
-import { store } from "../services/appSlice";
 
 export default function ProjectForm() {
 
@@ -20,6 +19,7 @@ export default function ProjectForm() {
     const [link, setLink] = useState("");
     const [feature, setFeature] = useState("");
     const [tech, setTech] = useState("");
+    const [exist, setExist] = useState(false);
 
 
     const submitdata = () => {
@@ -40,6 +40,7 @@ export default function ProjectForm() {
             console.error('UID is undefined');
             return;
         }
+        else{
         const docRef = doc(db, "users", uid);
         getDoc(docRef).then((docSnap) => {
             console.log(docSnap.data());
@@ -48,19 +49,22 @@ export default function ProjectForm() {
                 projects.map((project) => {
                     if (project.appName === data.appName) {
                         alert("Project Already Exists");
+                        setExist(true);
                         return;
                     }
                 })
+                if(!exist){
                 projects.push(data);
                 setDoc(doc(db, "users", uid), {
-                    email: docSnap.data().email,
-                    photo: docSnap.data().photo,
+                    name: localStorage.getItem("username"),
+                    email: localStorage.getItem("email"),
+                    photo: localStorage.getItem("photo"),
                     projects: projects,
-                    username: docSnap.data().username,
                 });
-                
+            }
             }
         })
+    }
     }
     catch(err){
         console.log(err);

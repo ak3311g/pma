@@ -1,9 +1,8 @@
 import PropTypes from "prop-types";
-import { store } from "../services/appSlice";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmarkCircle } from "@fortawesome/free-solid-svg-icons";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc,setDoc, getDoc} from "firebase/firestore";
 import { db } from "../firebase";
 
 export default function ProjectCard(props) {
@@ -19,14 +18,36 @@ export default function ProjectCard(props) {
 
     const [selectedgradient, setGradient] = useState(gradient[Math.floor(Math.random() * gradient.length)]);
 
-    const [project, setProjectData] = useState(store.getState().projects[props.project]);
+    const [project, setProjectData] = useState(null);
 
-    const projectData = project[props.project];
-
-    const updateDB =async (e) => {
-        try{
+    useEffect(() => {
+        // Fetch data from Firestore here
+        const fetchData = async () => {
+          try {
             const uid = localStorage.getItem("uid");
-            console.log(uid);
+            if (!uid) {
+              console.error("UID is undefined");
+              return;
+            }
+            const docRef = doc(db, "users", uid);
+            const docSnap = await getDoc(docRef);
+    
+            if (docSnap.exists()) {
+              const projects = docSnap.data().projects;
+              setProjectData(projects[props.project]);
+              console.log(projects[props.project]);
+            }
+          } catch (err) {
+            console.error(err);
+          }
+        };
+    
+        fetchData();
+      }, [props.project]);
+
+    const updateDB = async () => {
+        try {
+            const uid = localStorage.getItem("uid");
             if (!uid) {
                 console.error('UID is undefined');
                 return;
@@ -34,24 +55,23 @@ export default function ProjectCard(props) {
             const docRef = doc(db, "users", uid);
             getDoc(docRef).then((docSnap) => {
                 console.log(docSnap.data());
-                if (docSnap.exists()) {
-                    const projects = docSnap.data().projects;
-                    projects.map((project) => {
-                        if (project.appName === e.appName) {
-                            alert("Project Already Exists");
-                            return;
-                        }
-                    })
-                }
+                const projects = docSnap.data().projects;
+                projects.splice(props.project, 1);
+                setDoc(doc(db, "users", uid), {
+                    name: localStorage.getItem("username"),
+                    email: localStorage.getItem("email"),
+                    photo: localStorage.getItem("photo"),
+                    projects: projects,
+                });
             })
         }
-        catch(err){
+        catch (err) {
             console.log(err);
         }
     }
 
 
-    if (projectData === undefined) {
+    if (project === null) {
         return (
             <div className="flex bg-white shadow-lg rounded-lg m-4">
                 <div className="flex flex-col justify-center items-center p-4 w-1/3">
@@ -63,55 +83,55 @@ export default function ProjectCard(props) {
     else {
         return (
             <>
-                <div className="relative flex flex-col md:flex-row bg-white shadow-lg rounded-lg m-4">
-                
+                <div className="relative flex flex-col md:flex-row justify-between bg-white shadow-lg rounded-lg m-4 border-4 p-2 ">
+
                     <div className="absolute top-0 right-0 p-4 z-10">
-                        <FontAwesomeIcon icon={faXmarkCircle} className="text-red-500 text-xl cursor-pointer border-black border-2 rounded-xl" onClick={ updateDB } />
+                        <FontAwesomeIcon icon={faXmarkCircle} className="text-red-500 text-xl cursor-pointer border-black border-2 rounded-xl" onClick={updateDB} />
                     </div>
                     <div className="flex flex-col justify-center items-center w-full md:w-1/3 text-center z-0" style={{ background: selectedgradient }}>
                         <div className="flex flex-col justify-center items-center w-full h-full backdrop-brightness-75 backdrop-blur-xl p-3 z-0">
-                            <p className="text-2xl sm:text-2xl md:text-3xl font-bold text-gray-100">{projectData.appName}</p>
-                            <p className="text-md sm:text-lg md:text-xl font-semibold text-gray-300">{projectData.appDescription}</p>
+                            <p className="text-2xl sm:text-2xl md:text-3xl font-bold text-gray-100">{project.appName}</p>
+                            <p className="text-md sm:text-lg md:text-xl font-semibold text-gray-300">{project.appDescription}</p>
                         </div>
                     </div>
 
-                    <div className="flex flex-col">
+                    <div className="flex flex-col md:w-1/3 h-full">
                         <p className="text-3xl text-center font-semibold text-gray-900 p-4">Tech-Stack</p>
                         <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4 place-items-center">
-                        {projectData.techStack.map((tech, index) => (
-                            (
-                                <div key={index} className="">
-                                    <p className="text-sm sm:text-md font-semibold text-black uppercase ">{tech}</p>
-                                </div>
-                            )
-                        ))}
+                            {project.techStack.map((tech, index) => (
+                                (
+                                    <div key={index} className="">
+                                        <p className="text-sm sm:text-md font-semibold text-black uppercase ">{tech}</p>
+                                    </div>
+                                )
+                            ))}
                         </div>
                         <p className="text-3xl text-center font-semibold text-gray-900 p-4">Upcoming Features</p>
                         <div className="flex flex-col items-center justify-center p-4">
-                            {projectData.upcomingFeatures.map((feature, index) => (
+                            {project.upcomingFeatures.map((feature, index) => (
                                 (
                                     <div key={index} className="flex flex-row items-center justify-center">
                                         <div className="flex flex-col items-center justify-center">
-                                            <p className="text-sm sm:text-md font-semibold text-black uppercase ">{feature}</p>
+                                            <p className="text-sm sm:text-md font-semibold text-center text-black uppercase ">{feature}</p>
                                         </div>
                                     </div>
                                 )
                             ))}
                         </div>
-                        <a href={projectData.link} target="_blank" rel="noreferrer" className="flex flex-col items-center justify-center p-4 text-black text-xl font-bold bg-green-400 cursor-pointer">Link</a>
+                        <a href={project.link} target="_blank" rel="noreferrer" className="flex flex-col items-center justify-center p-4 text-black text-xl font-bold bg-green-400 cursor-pointer w-full">Link</a>
                     </div>
 
                     <div className="flex flex-col justify-center items-center w-full md:w-1/3 text-center" style={{ background: selectedgradient }}>
                         <p className="text-3xl text-center font-bold text-gray-200 p-4">More Details</p>
                         <div className="flex items-center justify-center p-4">
-                            <p className="text-sm sm:text-md font-semibold text-white">{projectData.appDetails.startDate}</p>
+                            <p className="text-sm sm:text-md font-semibold text-white">{project.appDetails.startDate}</p>
                             <p className="text-sm sm:text-md font-semibold text-white m-3">-</p>
-                            <p className="text-sm sm:text-md font-semibold text-white">{projectData.appDetails.endDate}</p>
+                            <p className="text-sm sm:text-md font-semibold text-white">{project.appDetails.endDate}</p>
                         </div>
                         <div className="flex flex-col items-center justify-center p-4">
                             <p className="text-xl sm:text-md font-semibold text-white">Status</p>
-                            {projectData.appDetails.finished ? (<p className="text-xl sm:text-md font-semibold text-white m-3">Finished</p>) : (<p className="text-xl sm:text-md font-semibold text-white m-3">In Progress</p>)}
-                            {projectData.appDetails.deployed ? (<p className="text-xl sm:text-md font-semibold text-white m-3">and Deployed</p>) : (<></>)}
+                            {project.appDetails.finished ? (<p className="text-xl sm:text-md font-semibold text-white m-3">Finished</p>) : (<p className="text-xl sm:text-md font-semibold text-white m-3">In Progress</p>)}
+                            {project.appDetails.deployed ? (<p className="text-xl sm:text-md font-semibold text-white m-3">and Deployed</p>) : (<></>)}
                         </div>
                     </div>
 
