@@ -40,4 +40,3 @@ export const {
 export const store = configureStore({
     reducer: appSlice.reducer,
 });
-
