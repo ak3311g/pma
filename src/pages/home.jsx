@@ -11,6 +11,7 @@ import { faXmarkCircle } from "@fortawesome/free-solid-svg-icons";
 import { doc,setDoc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { addProjects} from "../services/appSlice";
+import ProjectForm2 from "../components/projectForm2";
 
 export default function Home() {
 
@@ -86,10 +87,10 @@ export default function Home() {
         return (
             <>
 
-                <div className="w-screen h-[60vh] p-3 flex flex-col sm:flex-row gap-2 justify-center items-center">
+                <div className="w-screen h-[60vh] p-3 flex flex-col gap-2 justify-center items-center">
                     <img src={img} alt="profile" className="rounded-full h-30 w-30" />
                     <p className="text-xl sm:text-4xl font-bold text-center text-white">{username}</p>
-                    <button onClick={logout} className="bg-blue-400 hover:bg-blue-500 text-white text-sm sm:text-xl font-bold py-2 m-2 px-4 rounded">Logout</button>
+                    <button onClick={logout} className="bg-purple-500 hover:bg-blue-500 text-white text-sm sm:text-md font-bold py-2 m-2 px-4 rounded">Logout</button>
                 </div>
 
                 <div className="flex justify-center items-center w-screen p-3">
@@ -99,7 +100,8 @@ export default function Home() {
                                 <FontAwesomeIcon onClick={() => setShowForm(false)} icon={faXmarkCircle} className="absolute right-0 md:right-[13%] m-3 text-4xl text-red-500 hover:text-red-600 cursor-pointer" />
                             </div>
                             <ProjectForm />
-                        </div>) : <button onClick={() => setShowForm(true)} className="bg-blue-400 hover:bg-blue-500 text-white text-sm sm:text-xl font-bold py-2 m-2 px-4 rounded">Add Project</button>
+                            {/* <ProjectForm2 /> */}
+                        </div>) : <button onClick={() => setShowForm(true)} className="bg-purple-500 hover:bg-purple-600 text-white text-sm sm:text-md font-bold py-2 m-2 px-4 rounded">Add Project</button>
                     }
                 </div>
 

@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faXmarkCircle } from "@fortawesome/free-solid-svg-icons";
+import { faXmark, faXmarkCircle } from "@fortawesome/free-solid-svg-icons";
 import { doc,setDoc, getDoc} from "firebase/firestore";
 import { db } from "../firebase";
 
@@ -85,13 +85,16 @@ export default function ProjectCard(props) {
             <>
                 <div className="relative flex flex-col md:flex-row justify-between bg-white shadow-lg rounded-lg m-4 border-4 p-2 ">
 
-                    <div className="absolute top-0 right-0 p-4 z-10">
-                        <FontAwesomeIcon icon={faXmarkCircle} className="text-red-500 text-xl cursor-pointer border-black border-2 rounded-xl" onClick={updateDB} />
+                    <div className="absolute hidden md:block top-0 right-0 p-4 z-10">
+                    <FontAwesomeIcon icon={faXmark} size="xl" className="text-black border-[1px] rounded-full p-2 border-white" onClick={updateDB} />
                     </div>
-                    <div className="flex flex-col justify-center items-center w-full md:w-1/3 text-center z-0" style={{ background: selectedgradient }}>
+                    <div className="flex justify-center items-center w-full md:w-1/3 text-center z-0 rounded-md overflow-hidden" style={{ background: selectedgradient }}>
                         <div className="flex flex-col justify-center items-center w-full h-full backdrop-brightness-75 backdrop-blur-xl p-3 z-0">
                             <p className="text-2xl sm:text-2xl md:text-3xl font-bold text-gray-100">{project.appName}</p>
                             <p className="text-md sm:text-lg md:text-xl font-semibold text-gray-300">{project.appDescription}</p>
+                        </div>
+                        <div className="w-[10%] h-full md:hidden">
+                            <FontAwesomeIcon icon={faXmark} size="xl" className="" onClick={updateDB} />
                         </div>
                     </div>
 
