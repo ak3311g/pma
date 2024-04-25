@@ -104,7 +104,7 @@ export default function ProjectCard(props) {
                             {project.techStack.map((tech, index) => (
                                 (
                                     <div key={index} className="">
-                                        <p className="text-sm sm:text-md font-semibold text-black uppercase ">{tech}</p>
+                                        <p className="text-sm sm:text-md font-semibold text-black uppercase whitespace-nowrap">{tech}</p>
                                     </div>
                                 )
                             ))}
