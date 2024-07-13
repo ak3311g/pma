@@ -42,7 +42,8 @@ export default function Register() {
                     navigate("/");
                 }
                 else{
-                    setDoc(doc(db, "users", uid), {
+                    const mailId = user.email.split("@")[0];
+                    setDoc(doc(db, "users", mailId), {
                         name: user.displayName,
                         email: user.email,
                         photo: user.photoURL,
