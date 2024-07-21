@@ -67,10 +67,10 @@ export default function ProjectForm({setShowForm}) {
       const userRef = doc(db, "users", mailId);
       const userSnap = await getDoc(userRef);
       const userProjects = userSnap.data().projects;
-      userProjects.push(docRef.id);
+      userProjects.push({id:docRef.id, title: projectDetails.title, description: projectDetails.description});
       await setDoc(userRef, { projects: userProjects }, { merge: true });
       console.log("Document written with ID: ", docRef.id);
-      //setShowForm(false);
+      setShowForm(false);
     } catch (error) {
       console.log(error);
     }

@@ -88,42 +88,9 @@ export default function Home() {
       </>
     );
   } else {
-    const username = localStorage.getItem("username");
-    const img = localStorage.getItem("photo");
     return (
       <>
-        <div className="w-screen h-[60vh] p-3 flex flex-col gap-2 justify-center items-center">
-          <img src={img} alt="profile" className="rounded-full h-30 w-30" />
-          <p className="text-xl sm:text-4xl font-bold text-center text-white">
-            {username}
-          </p>
-          <button
-            onClick={logout}
-            className="bg-purple-500 hover:bg-blue-500 text-white text-sm sm:text-md font-bold py-2 m-2 px-4 rounded"
-          >
-            Logout
-          </button>
-        </div>
-
-        <div className="flex justify-center items-center w-screen p-3">
-          {showForm ? (
-            <div className="flex flex-col w-full">
-                <div className="relative top-5 z-10 flex justify-center items-center">
-                    <FontAwesomeIcon onClick={() => setShowForm(false)} icon={faXmarkCircle} className="text-white font-semibold text-3xl cursor-pointer relative top-4" />
-                </div>
-              <ProjectForm setShowForm = {setShowForm}/>
-              {/* <ProjectForm2 /> */}
-            </div>
-          ) : (
-            <button
-              onClick={() => setShowForm(true)}
-              className="bg-purple-500 hover:bg-purple-600 text-white text-sm sm:text-md font-bold py-2 m-2 px-4 rounded"
-            >
-              Add Project
-            </button>
-          )}
-        </div>
-
+        
         <div className="flex flex-col">
           <div className="flex flex-wrap justify-center items-center gap-5">
             {projects.map((project,index) => (
